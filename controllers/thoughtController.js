@@ -1,7 +1,6 @@
 const { user, thought, reaction } = require("../models");
 
 module.exports = {
-  // ALL THOUGHTS + INCLUDE FRIENDS
   async allThoughts(req, res) {
     try {
       const thoughts = await thought.find();
@@ -11,7 +10,6 @@ module.exports = {
     }
   },
 
-  // CREATE THOUGHT
   async createThought(req, res) {
     try {
       const newThought = await thought.create(req.body);
@@ -25,7 +23,6 @@ module.exports = {
     }
   },
 
-  // SINGLE THOUGHT
   async singleThought(req, res) {
     try {
       const thought = await thought.findOne({ _id: req.params.thoughtId });
@@ -38,7 +35,6 @@ module.exports = {
     }
   },
 
-  // UPDATE THOUGHT
   async updateThought(req, res) {
     try {
       const updatedThought = await thought.findOneAndUpdate(
@@ -68,7 +64,6 @@ module.exports = {
     }
   },
 
-  // ADD REACTION
   async addReaction(req, res) {
     try {
       const newReaction = await thought.findOneAndUpdate(
@@ -85,7 +80,6 @@ module.exports = {
     }
   },
 
-  // SINGLE REACTION
   async singleReaction(req, res) {
     try {
       const reaction = await reaction.findOne({ _id: req.params.reactionId });
@@ -98,7 +92,6 @@ module.exports = {
     }
   },
 
-  // DELETE REACTION
   async delReaction(req, res) {
     try {
       const deleteReaction = await thought.findOneAndUpdate(
