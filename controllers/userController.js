@@ -1,117 +1,107 @@
 const { user, thought, reaction } = require("../models");
 
 module.exports = {
-  // ALL THOUGHTS + INCLUDE FRIENDS
-  async allThoughts(req, res) {
+  async allUsers(req, res) {
     try {
-      const thoughts = await thought.find();
-      res.status(200).json(thoughts);
+      const users = await User.find()
+        .populate({ path: "thoughts", select: "-__v" })
+        .populate({ path: "friends", select: "-__v" });
+      res.status(200).json(users);
     } catch (err) {
-      res.status(500).json({ message: "Error allThoughts", err });
+      res.status(500).json({ message: "Error allUsers", err });
     }
   },
 
-  // CREATE THOUGHT
-  async createThought(req, res) {
+  async createUser(req, res) {
     try {
-      const newThought = await thought.create(req.body);
-      await User.findOneAndUpdate(
-        { username: newThought.username },
-        { $push: { thoughts: newThought._id } }
-      );
-      res.status(200).json(newThought);
+      const newUser = await User.create(req.body);
+      res.status(200).json(newUser);
     } catch (err) {
-      res.status(500).json({ message: "Error createThought", err });
+      res.status(500).json({ message: "Error newUser", err });
     }
   },
 
-  // SINGLE THOUGHT
-  async singleThought(req, res) {
+  async singleUser(req, res) {
     try {
-      const thought = await thought.findOne({ _id: req.params.thoughtId });
-      if (!thought) {
-        return res.status(404).json("Thought missing");
+      const user = await User.findOne({ _id: req.params.id })
+        .populate({ path: "thoughts", select: "-__v" })
+        .populate({ path: "friends", select: "-__v" });
+      if (!user) {
+        return res.status(404).json({ message: "User doesn't exist" });
       }
-      res.status(200).json(thought);
+      res.status(200).json(user);
     } catch (err) {
-      res.status(500).json({ message: "Error singleThought", err });
+      res.status(500).json({ message: "Error singleUser", err });
     }
   },
 
-  // UPDATE THOUGHT
-  async updateThought(req, res) {
+  async updateUser(req, res) {
     try {
-      const updatedThought = await thought.findOneAndUpdate(
-        { _id: req.params.thoughtId },
-        { $set: req.body }
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: req.body },
+        { new: true }
       );
-      if (!updatedThought) {
-        return res.status(404).json("Thought missing");
+      if (!updatedUser) {
+        return res.status(404).json(`Can't find User`);
       }
-      res.status(200).json(updatedThought);
+      res.status(200).json(updatedUser);
     } catch (err) {
-      res.status(500).json({ message: "Error updateThought", err });
+      res.status(500).json({ message: "Error updateUser", err });
     }
   },
 
-  async delThought(req, res) {
+  delUser(req, res) {
+    User.findOneAndDelete({ _id: req.params.id })
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: "No user with that ID" })
+          : Thought.deleteMany({ _id: { $in: user.thoughts } })
+      )
+      .then(() => res.json({ message: "User and thoughts deleted!" }))
+      .catch((err) => res.status(500).json(err));
+  },
+
+  async addFriend(req, res) {
     try {
-      const deleteThought = await thought.findOneAndDelete({
-        _id: req.params.thoughtId,
+      const updatedUser = await User.findByIdAndUpdate(
+        { _id: req.params.id },
+        { $push: { friends: req.params.friendId } }
+      );
+      if (!updatedUser) {
+        return res.status(404).json(`Can't find User`);
+      }
+      const updatedFriend = await User.findByIdAndUpdate(
+        { _id: req.params.friendId },
+        { $push: { friends: req.params.id } }
+      );
+      if (!updatedFriend) {
+        return res.status(404).json(`Can't find Friend`);
+      }
+      res.status(200).json("Friend Added");
+    } catch (err) {
+      res.status(500).json({ message: "Error addFriend", err });
+    }
+  },
+
+  async delFriend(req, res) {
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        { _id: req.params.id },
+        { $pull: { friends: req.params.friendId } }
+      );
+      if (!updatedUser) {
+        return res.status(404).json(`Can't find User`);
+      }
+      const updatedFriend = await User.findByIdAndUpdate(req.params.friendId, {
+        $pull: { friends: req.params.id },
       });
-      if (!deleteThought) {
-        return res.status(404).json("Thought missing");
+      if (!updatedFriend || !updatedUser) {
+        return res.status(404).json(`Can't find Friend`);
       }
-      res.status(200).json(deleteThought);
+      res.status(200).json("Friend Deleted");
     } catch (err) {
-      res.status(500).json({ message: "Error delThought", err });
-    }
-  },
-
-  // ADD REACTION
-  async addReaction(req, res) {
-    try {
-      const newReaction = await thought.findOneAndUpdate(
-        { _id: req.params.thoughtId },
-        { $push: { reactions: req.body } },
-        { new: true }
-      );
-      if (!newReaction) {
-        return res.status(404).json("Thought missing");
-      }
-      res.status(200).json(newReaction);
-    } catch (err) {
-      res.status(500).json({ message: "Error addReaction", err });
-    }
-  },
-
-  // SINGLE REACTION
-  async singleReaction(req, res) {
-    try {
-      const reaction = await reaction.findOne({ _id: req.params.reactionId });
-      if (!reaction) {
-        return res.status(404).json("Reaction mising");
-      }
-      res.status(200).json(reaction);
-    } catch (err) {
-      res.status(500).json({ message: "Error singleReaction", err });
-    }
-  },
-
-  // DELETE REACTION
-  async delReaction(req, res) {
-    try {
-      const deleteReaction = await thought.findOneAndUpdate(
-        { _id: req.params.thoughtId },
-        { $pull: { reactions: { _id: req.params.reactionId } } },
-        { new: true }
-      );
-      if (!deleteReaction) {
-        return res.status(404).json("Reaction missing");
-      }
-      res.status(200).json("Reaction Deleted");
-    } catch (err) {
-      res.status(500).json({ message: "Error delReaction", err });
+      res.status(500).json({ message: "Error delFriend", err });
     }
   },
 };
