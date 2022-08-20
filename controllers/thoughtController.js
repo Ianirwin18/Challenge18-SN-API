@@ -25,7 +25,7 @@ module.exports = {
 
   async singleThought(req, res) {
     try {
-      const thought = await thought.findOne({ _id: req.params.thoughtId });
+      const thought = await Thought.findOne({ _id: req.params.thoughtId });
       if (!thought) {
         return res.status(404).json("Thought missing");
       }
@@ -82,7 +82,7 @@ module.exports = {
 
   async singleReaction(req, res) {
     try {
-      const reaction = await reaction.findOne({ _id: req.params.reactionId });
+      const reaction = await Reaction.findOne({ _id: req.params.reactionId });
       if (!reaction) {
         return res.status(404).json("Reaction mising");
       }

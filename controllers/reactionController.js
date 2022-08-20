@@ -12,7 +12,7 @@ module.exports = {
 
   async singleReaction(req, res) {
     try {
-      const reaction = await reaction.findOne({ id_: req.params.reactionId });
+      const reaction = await Reaction.findOne({ id_: req.params.reactionId });
       if (!reaction) {
         return res.status(404).json("Reaction not found");
       }
