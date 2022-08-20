@@ -1,9 +1,9 @@
-const { user, thought, reaction } = require("../models");
+const { User, Thought, Reaction } = require("../models");
 
 module.exports = {
   async allReactions(req, res) {
     try {
-      const reactions = await reaction.find();
+      const reactions = await Reaction.find();
       res.status(200).json(reactions);
     } catch (err) {
       res.status(500).json({ message: "allThoughts Error", err });

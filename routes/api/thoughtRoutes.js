@@ -1,7 +1,6 @@
 const router = require("express").Router();
-const { thought, reaction } = require("../../models");
+const { Thought, Reaction } = require("../../models");
 
-// Controller
 const {
   allThoughts,
   createThought,

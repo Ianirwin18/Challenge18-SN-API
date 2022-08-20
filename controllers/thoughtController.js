@@ -1,9 +1,9 @@
-const { user, thought, reaction } = require("../models");
+const { User, Thought, Reaction } = require("../models");
 
 module.exports = {
   async allThoughts(req, res) {
     try {
-      const thoughts = await thought.find();
+      const thoughts = await Thought.find();
       res.status(200).json(thoughts);
     } catch (err) {
       res.status(500).json({ message: "Error allThoughts", err });
@@ -12,7 +12,7 @@ module.exports = {
 
   async createThought(req, res) {
     try {
-      const newThought = await thought.create(req.body);
+      const newThought = await Thought.create(req.body);
       await User.findOneAndUpdate(
         { username: newThought.username },
         { $push: { thoughts: newThought._id } }
@@ -37,7 +37,7 @@ module.exports = {
 
   async updateThought(req, res) {
     try {
-      const updatedThought = await thought.findOneAndUpdate(
+      const updatedThought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { $set: req.body }
       );
@@ -52,7 +52,7 @@ module.exports = {
 
   async delThought(req, res) {
     try {
-      const deleteThought = await thought.findOneAndDelete({
+      const deleteThought = await Thought.findOneAndDelete({
         _id: req.params.thoughtId,
       });
       if (!deleteThought) {
@@ -66,7 +66,7 @@ module.exports = {
 
   async addReaction(req, res) {
     try {
-      const newReaction = await thought.findOneAndUpdate(
+      const newReaction = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { $push: { reactions: req.body } },
         { new: true }
@@ -94,7 +94,7 @@ module.exports = {
 
   async delReaction(req, res) {
     try {
-      const deleteReaction = await thought.findOneAndUpdate(
+      const deleteReaction = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { $pull: { reactions: { _id: req.params.reactionId } } },
         { new: true }
