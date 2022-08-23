@@ -3,7 +3,6 @@
 ## Table of Contents 📑
 
 - [Description](#description)
-- [Application Preview](#application-preview)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Links](#links)
@@ -14,12 +13,6 @@
 ## Description
 
 - To build a social media api.
-
-## Application Preview
-
-<p align="left">
-    <img alt="website preview" src="">
-</p>
 
 ## Installation
 
@@ -34,6 +27,8 @@
 ## Links
 
 - Github Repository: https://github.com/Ianirwin18/Challenge18-SN-API
+
+- Demo Video: https://drive.google.com/file/d/13EuDsaQvRblgBcKzRgC9vPnHBYsjejXy/view?usp=sharing
 
 ## Technologies
 
